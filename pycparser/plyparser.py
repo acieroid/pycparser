@@ -27,6 +27,15 @@ class Coord(object):
         if self.column: str += ":%s" % self.column
         return str
 
+class CompoundCoord(Coord):
+    __slots__ = ('coord1', 'coord2')
+    def __init__(self, coord1, coord2):
+        super().__init__(coord1.file, coord1.line, coord1.column)
+        self.coord1 = coord1
+        self.coord2 = coord2
+
+    def __str__(self):
+        return "%s: %s:%s--%s:%s" % (self.file, self.line, self.column, self.coord2.line, self.coord2.column)
 
 class ParseError(Exception): pass
 

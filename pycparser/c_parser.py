@@ -10,7 +10,7 @@ from .ply import yacc
 
 from . import c_ast
 from .c_lexer import CLexer
-from .plyparser import PLYParser, ParseError, parameterized, template
+from .plyparser import PLYParser, ParseError, parameterized, template, CompoundCoord
 from .ast_transforms import fix_switch_cases, fix_atomic_specifiers
 
 
@@ -1538,7 +1538,7 @@ class CParser(PLYParser):
         """ compound_statement : brace_open block_item_list_opt brace_close """
         p[0] = c_ast.Compound(
             block_items=p[2],
-            coord=self._token_coord(p, 1))
+            coord=CompoundCoord(self._token_coord(p, 1), self._token_coord(p, 3)))
 
     def p_labeled_statement_1(self, p):
         """ labeled_statement : ID COLON pragmacomp_or_statement """
@@ -1558,7 +1558,8 @@ class CParser(PLYParser):
 
     def p_selection_statement_2(self, p):
         """ selection_statement : IF LPAREN expression RPAREN statement ELSE pragmacomp_or_statement """
-        p[0] = c_ast.If(p[3], p[5], p[7], self._token_coord(p, 1))
+        p[0] = c_ast.If(p[3], p[5], p[7],
+                        CompoundCoord(self._token_coord(p, 1), self._token_coord(p, 6)))
 
     def p_selection_statement_3(self, p):
         """ selection_statement : SWITCH LPAREN expression RPAREN pragmacomp_or_statement """
